@@ -19,6 +19,7 @@ const valve = new Smooth(db)
 
 const app = express()
 const instances = []
+const statuses = {}
 
 const performCleanup = (folder) => {
     console.log('CLEANUP', folder)
@@ -42,8 +43,10 @@ const timeSync = async (folder, address) => {
     console.time(`timeSync ${folder}`)
     try{
         await ClockSync.setSystemTime(config.credential(), url.parse(address).hostname)
+        statuses[folder] = true
     }catch(err){
         console.error(`failed to set ${folder} time:`, err)
+        statuses[folder] = false
     }
     console.timeEnd(`timeSync ${folder}`)
 }
@@ -76,13 +79,14 @@ const loadFolder = (folder, address) => {
     console.timeEnd(`watch ${folder}`)
 
     instances.push(new Ffmpeg(config, folder, address))
-    
+    statuses[folder] = null
     timeSync(folder, address)
     setInterval(() => timeSync(folder, address), config.syncInterval() * 1000)
 }
 
 app.use(cors())
 
+app.get('/status', (req,res) => res.json(statuses))
 app.get('/streams', (req, res) => {
     res.set('Content-Type', 'application/json')
     console.log(config.targets())

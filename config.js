@@ -32,7 +32,7 @@ module.exports = {
             source: "rtsp://192.168.2.164:554/user=admin&password=&channel=1&stream=0.sdp?real_stream"
         }
     },
-    syncInterval: 60 * 60 * 24, /* sync time every day */
+    syncInterval: 5 * 60, /* every 5 minutes */
     credential: {
         username: 'admin',
         password: ''
